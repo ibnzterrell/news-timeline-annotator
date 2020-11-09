@@ -15,12 +15,7 @@ WORKDIR /opt/corenlp
 # Get Language Models
 RUN wget http://nlp.stanford.edu/software/stanford-corenlp-models-current.jar && \
     wget http://nlp.stanford.edu/software/stanford-english-corenlp-models-current.jar && \
-    wget http://nlp.stanford.edu/software/stanford-english-kbp-corenlp-models-current.jar && \
-    wget http://nlp.stanford.edu/software/stanford-arabic-corenlp-models-current.jar && \
-    wget http://nlp.stanford.edu/software/stanford-chinese-corenlp-models-current.jar && \
-    wget http://nlp.stanford.edu/software/stanford-french-corenlp-models-current.jar && \
-    wget http://nlp.stanford.edu/software/stanford-german-corenlp-models-current.jar && \
-    wget http://nlp.stanford.edu/software/stanford-spanish-corenlp-models-current.jar
+    wget http://nlp.stanford.edu/software/stanford-english-kbp-corenlp-models-current.jar
 
 RUN export CLASSPATH="`find . -name '*.jar'`"
 

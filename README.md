@@ -7,4 +7,4 @@ Server](http://stanfordnlp.github.io/CoreNLP/corenlp-server.html) and runs the C
 
 Uses Java 11 LTS - OpenJDK.
 
-NOTE: This is the full version with all of the language models.
+NOTE: This only includes the (full) english models.
