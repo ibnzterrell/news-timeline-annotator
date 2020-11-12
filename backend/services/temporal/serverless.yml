@@ -1,0 +1,24 @@
+service: temporal
+# app and org for use with dashboard.serverless.com
+app: timeline-annotator
+org: ibnzterrell
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: java11
+  region: us-west-2
+  # 1792 MB - Full use of single core
+  memorySize: 1792
+
+package:
+  artifact: build/distributions/temporal.zip
+
+functions:
+  temporal:
+    handler: edu.stanford.tvnews.TemporalServiceHandler
+    events:
+      - http:
+          path: /{proxy+}
+          method: post
