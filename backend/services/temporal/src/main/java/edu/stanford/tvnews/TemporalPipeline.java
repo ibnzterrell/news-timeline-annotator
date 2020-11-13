@@ -44,8 +44,8 @@ public class TemporalPipeline {
         if (timexAnnotations.size() > 0) {
             // CoreNLP's SUTime sometimes resolves dates in the future
             // HeidelTime was trained on news and performs bettter
-            // Conside switching when CoreNLP supports it
-            eventDate = timexAnnotations.get(0).get(TimeExpression.Annotation.class).getTemporal().prev().toString();
+            // Consider switching when CoreNLP supports it
+            eventDate = timexAnnotations.get(0).get(TimeExpression.Annotation.class).getTemporal().toISOString();
         }
 
         return new TemporalEvent.TemporalEventBuilder().uri(document.getUri()).eventDate(eventDate).build();
