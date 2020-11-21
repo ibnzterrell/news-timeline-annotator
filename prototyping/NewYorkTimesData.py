@@ -40,14 +40,20 @@ def getMonthDataframe(month, year):
 
     # NOTE: Changed due to lead_paragraph, abstract, and subsection_name missing from 2018/8 forward
     df = df[["uri", "pub_date", "type_of_material", "main_headline",
-             "print_headline", "snippet", "news_desk", "section_name", "web_url", "people", "organizations", "locations"]]
+             "print_headline", "snippet", "news_desk", "section_name", "web_url", "people", "organizations", "subjects", "locations"]]
 
     # Drop Unlabled Material
     df = df.dropna(subset=["type_of_material"])
 
-    # Drop First Chapter, Corrections Op-Eds, Reviews, Editorials, etc
+    # Drop Non-News Material
     # NOTE: Maybe include Text
-    df = df[df['type_of_material'].isin(['News', "Brief", "Obituary (Obit)"])]
+    df = df[df["type_of_material"].isin(["News", "Brief", "Obituary (Obit)"])]
+
+    # Drop News Desks that aren't about events
+    df = df[~df['news_desk'].isin(["BookReview", "Podcasts", "Upshot"])]
+
+    # Drop Sections that aren't about events or are subjective
+    df = df[~df["section_name"].isin(["Opinion", "Fashion & Style"])]
 
     return df
 
@@ -62,7 +68,10 @@ for year in years:
         mdf = getMonthDataframe(month, year)
         dfs.append(mdf)
         print(mdf)
+        # NOTE NYT API has a rate limit of 10 requests per minute
         time.sleep(6)
 
-df = pd.concat(dfs)
-df.to_csv("NYT_Data.csv")
+dfs = pd.concat(dfs)
+# The NYT API tends to return duplicates
+dfs = dfs.drop_duplicates(subset=["uri"], keep="first")
+dfs.to_csv("NYT_Data.csv", index=False, index_label=False)
