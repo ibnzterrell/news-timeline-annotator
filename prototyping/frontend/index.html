@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js"></script>
+
+</head>
+
+<body>
+    <form>
+        <label for="url"><a href="https://tvnews.stanford.edu/" target="_blank">Stanford Cable TV News Analyzer</a>
+            URL:</label>
+        <input type="text" id="url" name="url" />
+        <input type="button" value="Annotate" onclick="annotate(document.getElementById('url').value)">
+    </form>
+    <div class="graph">
+
+    </div>
+    <image src="poweredby_nytimes_200a.png">
+
+    </image>
+    <div class="timeline">
+        <h1>Timeline</h1>
+    </div>
+</body>
+<script src="frontend.js"></script>
+
+</html>
