@@ -19,7 +19,8 @@ def db_connect():
     engine = getattr(g, '_engine', None)
 
     if engine is None:
-        engine = g._engine = sa.create_engine("sqlite:///NYT.db", echo=True)
+        engine = g._engine = sa.create_engine(
+            "[DATABASE ENGINE]", echo=True)
 
     if db is None:
         db = g._database = engine.connect()
@@ -94,14 +95,12 @@ def findEvents(name, dates):
 
 
 @app.route("/person/<name>/screentime")
-@cross_origin()
 def personScreentimeRoute(name):
     df = getPersonScreentime(name)
     return df.to_csv(None, index_label="date")
 
 
 @app.route("/person/<name>/events")
-@cross_origin()
 def personEventsRoute(name):
     df = getPersonScreentime(name)
     df = findPeaks(df)
@@ -110,7 +109,6 @@ def personEventsRoute(name):
 
 
 @app.route("/utility/findPeaks", methods=["POST"])
-@cross_origin()
 def findPeaksUtilityRoute():
     print(request.data)
     df = pd.read_csv(BytesIO(request.data))
@@ -123,6 +121,13 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
+
+@app.after_request  # cors_bypass
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    return response
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ async function getData(queryText) {
 }
 
 async function getPersonData(name) {
-    let data = d3.csv(`http://localhost:3000/person/${name}/screentime`,
+    let data = d3.csv(`https://2qcpuu39v3.execute-api.us-west-2.amazonaws.com/dev/person/${name}/screentime`,
         (d) => {
             return {
                 date: d3.timeParse("%Y-%m-%d")(d.date),
@@ -26,7 +26,7 @@ async function getPersonData(name) {
 }
 
 async function getPersonEvents(name, timedata) {
-    let data = d3.csv(`http://localhost:3000/person/${name}/events`,
+    let data = d3.csv(`https://2qcpuu39v3.execute-api.us-west-2.amazonaws.com/dev/person/${name}/events`,
         (d) => {
             return {
                 date: d3.timeParse("%Y-%m")(d.month_date),
