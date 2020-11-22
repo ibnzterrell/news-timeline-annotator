@@ -61,6 +61,8 @@ const line = svgContainer.append("path");
 const annotGroup = svgContainer.append("g");
 const timelineList = d3.select(".timeline");
 const localeOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const xAxisGroup = svgContainer.append("g");
+const yAxisGroup = svgContainer.append("g");
 
 function randomBool() {
     return Math.floor(Math.random() * 2) == 1;
@@ -85,6 +87,15 @@ function annotate(url) {
         // Set up scales
         let xScale = d3.scaleTime().domain(d3.extent(data, d => d.date)).range([0, plotVars.plotWidth]);
         let yScale = d3.scaleLinear().domain([0, d3.max(data, d => d.screentime)]).range([plotVars.plotHeight, 0]);
+
+        let xAxis = d3.axisBottom()
+            .scale(xScale);
+
+        let yAxis = d3.axisRight()
+            .scale(yScale);
+
+        xAxisGroup.call(xAxis);
+        yAxisGroup.call(yAxis);
 
         const maxScreentime = d3.max(data, d => d.screentime);
 
