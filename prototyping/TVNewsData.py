@@ -48,14 +48,25 @@ def getPersonScreentime(name):
     return df
 
 
-def convertName(name):
+def legalize(name):
+    # Convert common name to legal name for NYT lookup
+    return {
+        "joe biden": "Joseph R Jr Biden",
+        "bernie sanders": "Bernard Sanders",
+        "jack welch": "John F Jr Welch"
+    }.get(name, name)  # Return name if not found
+
+
+def convertNameForNYT(name):
+    name = legalize(name)
+
     # Convert name from Cable TV format (first middle last) to NYT format (last, first middle)
     results = re.search("(.*) (.*)", name).groups()
     return f"{results[1]}, {results[0]}"
 
 
 def findEvents(name, dates):
-    name = convertName(name)
+    name = convertNameForNYT(name)
     df = []
 
     (db_conn, articlesTable) = db_connect()
