@@ -39,7 +39,8 @@ async function getPersonEvents(name, timedata) {
                 people: d.people,
                 organizations: d.organizations,
                 topics: d.subjects,
-                url: d.web_url
+                url: d.web_url,
+                uri: d.uri
             };
         });
     return data;
@@ -58,7 +59,8 @@ const svgContainer = d3.select(".graph").append('svg').attr("width", plotVars.pl
 
 const line = svgContainer.append("path");
 const annotGroup = svgContainer.append("g");
-const timelineList = d3.select(".timeline").append("ol");
+const timelineList = d3.select(".timeline");
+const localeOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
 function randomBool() {
     return Math.floor(Math.random() * 2) == 1;
@@ -99,22 +101,24 @@ function annotate(url) {
 
                     // TODO Proper label placement algo 
                     // Heuristic for label placement for now
-                    let xOffset = (i / (events.length - 1)) * plotVars.plotWidth + 70;
+                    let xOffset = (i / events.length) * plotVars.plotWidth + 70;
                     // Evenly distribute X placement
                     // Y Stagger based on even / odd index
                     let yOffset = (i % 2 === 1) ? 150 : 300;
                     let edx = -ex + xOffset;
-                    let edy = -(ey - yOffset);
+                    let edy = -ey + yOffset;
 
                     return {
                         note: {
                             title: e.headline,
-                            label: `${e.date.toLocaleString('default', { month: 'short' })}, ${e.date.getFullYear()}`
+                            label: `${e.date.toLocaleString('default', { month: 'short' })}, ${e.date.getFullYear()}`,
                         },
                         x: ex,
                         y: ey,
                         dx: edx,
-                        dy: edy
+                        dy: edy,
+                        connector: { end: "arrow" },
+
                     }
                 });
 
@@ -128,14 +132,25 @@ function annotate(url) {
 
 
 
-                timelineList.selectAll('li') // select all list elements 
-                    .data(events)  // bind all our event values
+                timelineList.selectAll(".event") // select all list elements 
+                    .data(events, e => e.uri)  // bind all our event values
                     .join(
-                        enter => enter.append('li'), // append an li element for each event
+                        enter => {
+                            let eDiv = enter.append("div");
+                            eDiv.attr("class", "event");
+                            eDiv.append("h3").text(d => `${d.headline}`);
+                            eDiv.append("h4").text(d => `${new Date(d.pub_date).toLocaleDateString("en-us", localeOptions)} - ${d.section}`);
+                            eDiv.append("p").text(d => `${d.snippet}`);
+                            eDiv.append("p").text(d => `People: ${d.people}`);
+                            eDiv.append("p").text(d => `Organizations: ${d.organizations}`);
+                            eDiv.append("p").text(d => `Topics: ${d.topics}`);
+                            eDiv.append("a").attr("href", d => `${d.url}`).text(d => `${d.url}`);
+                            return eDiv;
+                        }, // append a div for each event
                         update => update,
-                        exit => exit.remove()       // remove li elements for removed events
+                        exit => exit.remove()       // remove divs for removed events
                     )
-                    .text(d => `${d.headline}`)
+
             }
         );
     });

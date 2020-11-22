@@ -7,20 +7,24 @@
 </head>
 
 <body>
+    <a href="https://tvnews.stanford.edu/" target="_blank">
+        <image src="StanfordCableTVNewsAnalyzer.png">
+        </image>
+    </a>
+    <div class="graph">
+    </div>
+    <a href="https://developer.nytimes.com/" target="_blank">
+        <image src="poweredby_nytimes_200a.png">
+        </image>
+    </a>
     <form>
         <label for="url"><a href="https://tvnews.stanford.edu/" target="_blank">Stanford Cable TV News Analyzer</a>
-            URL:</label>
+            URL to Annotate:</label>
         <input type="text" id="url" name="url" />
         <input type="button" value="Annotate" onclick="annotate(document.getElementById('url').value)">
     </form>
-    <div class="graph">
-
-    </div>
-    <image src="poweredby_nytimes_200a.png">
-
-    </image>
     <div class="timeline">
-        <h1>Timeline</h1>
+        <h1>Event Timeline</h1>
     </div>
 </body>
 <script src="frontend.js"></script>
