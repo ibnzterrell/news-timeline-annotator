@@ -93,18 +93,28 @@ function annotate(url) {
         getPersonEvents(query.queries[0].text.match(queryRegex)[2], data).then(
             (events) => {
                 console.log(events);
-                let annotations = events.map(e => {
+                let annotations = events.map((e, i) => {
+                    let ex = xScale(e.date);
+                    let ey = yScale(e.screentime);
+
+                    // TODO Proper label placement algo 
+                    // Heuristic for label placement for now
+                    let xOffset = (i / (events.length - 1)) * plotVars.plotWidth + 70;
+                    // Evenly distribute X placement
+                    // Y Stagger based on even / odd index
+                    let yOffset = (i % 2 === 1) ? 150 : 300;
+                    let edx = -ex + xOffset;
+                    let edy = -(ey - yOffset);
+
                     return {
                         note: {
                             title: e.headline,
-                            label: `${e.date.toLocaleString('default', { month: 'long' })}, ${e.date.getFullYear()}`
+                            label: `${e.date.toLocaleString('default', { month: 'short' })}, ${e.date.getFullYear()}`
                         },
-                        x: xScale(e.date),
-                        y: yScale(e.screentime),
-                        // TODO Use more accurate placements
-                        dx: 30,
-                        // Displays below peak if peak is above 75% height of graph
-                        dy: (e.screentime > maxScreentime * .75) ? 15 : - 15
+                        x: ex,
+                        y: ey,
+                        dx: edx,
+                        dy: edy
                     }
                 });
 
