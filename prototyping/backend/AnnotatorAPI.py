@@ -63,6 +63,11 @@ def convertNameForNYT(name):
 
     # Convert name from Cable TV format (first middle last) to NYT format (last, first middle)
     results = re.search("(.*) (.*)", name).groups()
+
+    # Certain names from the NYT do not use comma notation (Chinese mostly)
+    if name in ["xi jinping"]:
+        return name
+
     return f"{results[1]}, {results[0]}"
 
 
