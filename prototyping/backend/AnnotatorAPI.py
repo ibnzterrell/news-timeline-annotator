@@ -94,13 +94,15 @@ def findEvents(name, dates):
     return df
 
 
-@app.route("/person/<name>/screentime")
+@app.route("/person/<name>/screentime", methods=["GET"])
+@cross_origin()
 def personScreentimeRoute(name):
     df = getPersonScreentime(name)
     return df.to_csv(None, index_label="date")
 
 
-@app.route("/person/<name>/events")
+@app.route("/person/<name>/events", methods=["GET"])
+@cross_origin()
 def personEventsRoute(name):
     df = getPersonScreentime(name)
     df = findPeaks(df)
@@ -108,12 +110,18 @@ def personEventsRoute(name):
     return df.to_csv(None)
 
 
-@app.route("/utility/findPeaks", methods=["POST"])
-def findPeaksUtilityRoute():
-    print(request.data)
-    df = pd.read_csv(BytesIO(request.data))
-    df = findPeaks(df)
-    return df.to_csv(None, index=False)
+@app.route("/warmup", methods=["GET"])
+@cross_origin()
+def warmupRoute(name):
+    db_connect()
+    return "OK"
+
+# @app.route("/utility/findPeaks", methods=["POST"])
+# def findPeaksUtilityRoute():
+#     print(request.data)
+#     df = pd.read_csv(BytesIO(request.data))
+#     df = findPeaks(df)
+#     return df.to_csv(None, index=False)
 
 # Close database on shutdown
 @app.teardown_appcontext
@@ -121,13 +129,6 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
-
-
-@app.after_request  # cors_bypass
-def after_request(response):
-    header = response.headers
-    header['Access-Control-Allow-Origin'] = '*'
-    return response
 
 
 if __name__ == '__main__':

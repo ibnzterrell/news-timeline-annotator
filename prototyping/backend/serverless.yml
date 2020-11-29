@@ -11,10 +11,10 @@ functions:
   app:
     handler: wsgi_handler.handler
     events:
-      - http: ANY /
+      - http: GET /
       - http:
           path: '{proxy+}'
-          method: ANY
+          method: GET
           cors: true
 custom:
   wsgi:
