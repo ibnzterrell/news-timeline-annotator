@@ -18,11 +18,72 @@
         </image>
     </a>
     <form>
-        <label for="url"><a href="https://tvnews.stanford.edu/" target="_blank">Stanford Cable TV News Analyzer</a>
+        <label for="url"><a
+                href="https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiam9lIGJpZGVuXCIifV19"
+                target="_blank">Stanford Cable TV News Analyzer</a>
             URL to Annotate:</label>
         <input type="text" id="url" name="url" />
         <input type="button" value="Annotate" onclick="annotate(document.getElementById('url').value)">
     </form>
+    <p>
+        The Timeline Annotator grabs a screentime graph from a Stanford Cable TV News Analyzer query,
+        performs major
+        event detection using screentime volume, constructs an event timeline summarization using news articles from the
+        New York Times, and adds event annotations to the graph to help provide context.
+    </p>
+    <p>
+        <b>Instructions:</b> Visit the Stanford Cable TV News Analyzer, use it to make a query, and use "Copy URL" to
+        copy and paste that query URL into
+        the box above. Click the "Annotate" button. </p>
+    <p>
+        Example URLs
+    <ul>
+        <li>
+            John McCain:
+            <a href="https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiam9obiBtY2NhaW5cIiJ9XX0"
+                target="_blank">
+                https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiam9obiBtY2NhaW5cIiJ9XX0
+            </a>
+        </li>
+        <li>
+            Nancy Pelosi:
+            <a href="https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwibmFuY3kgcGVsb3NpXCIifV19"
+                target="_blank">
+                https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwibmFuY3kgcGVsb3NpXCIifV19
+            </a>
+        </li>
+        <li>
+            Bill Cosby:
+            <a href="https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiYmlsbCBjb3NieVwiIn1dfQ"
+                target="_blank">
+                https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiYmlsbCBjb3NieVwiIn1dfQ
+            </a>
+        </li>
+        <li>
+            Bill Gates:
+            <a href="https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiYmlsbCBnYXRlc1wiIn1dfQ"
+                target="_blank">
+                https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwiYmlsbCBnYXRlc1wiIn1dfQ
+            </a>
+        </li>
+        <li>
+            Xi Jinping:
+            <a href="https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwieGkgamlucGluZ1wiIn1dfQ"
+                target="_blank">
+                https://tvnews.stanford.edu/?dataVersion=v1&data=eyJvcHRpb25zIjp7ImFnZ3JlZ2F0ZSI6Im1vbnRoIn0sInF1ZXJpZXMiOlt7ImNvbG9yIjoiIzRFNzlBNyIsInRleHQiOiJuYW1lPVwieGkgamlucGluZ1wiIn1dfQ
+            </a>
+        </li>
+    </ul>
+
+    </p>
+    <p>
+        Limitations: This is a work-in-progress prototype. It currently only works on people (one at a time). Feel free
+        to email me at <a href="mailto:terrell.ibanez@stanford.edu">terrell.ibanez@stanford.edu</a> or direct message me
+        on
+        Twitter <a href="https://twitter.com/ibnzterrell">@ibnzterrell</a> if you have feedback
+        /
+        suggestions.
+    </p>
     <div class="timeline">
         <h1>Event Timeline</h1>
     </div>
