@@ -49,6 +49,15 @@ def getPersonScreentime(name):
     return df
 
 
+def getTopicScreentime(topic):
+    rawData = requests.get(
+        f"https://tvnews.stanford.edu/search?aggregate=month&detailed=false&end_date=2020-12-31&query=%5B%22text%22%2C%22{topic}%22%5D&start_date=2010-01-01")
+    data = json.loads(rawData.content)
+    df = pd.DataFrame.from_dict(data, orient="index")
+    df.rename(columns={df.columns[0]: "screentime"}, inplace=True)
+    return df
+
+
 def legalize(name):
     # Convert common name to legal name for NYT lookup
     return {
@@ -71,7 +80,7 @@ def convertNameForNYT(name):
     return f"{results[1]}, {results[0]}"
 
 
-def findEvents(name, dates):
+def findPersonEvents(name, dates):
     name = convertNameForNYT(name)
     df = []
 
@@ -85,7 +94,26 @@ def findEvents(name, dates):
     # TODO Make more efficient by doing processing ahead of time to offload date filtering to DB
     # TODO Make more accurate using Heideltime NLP to temporalize events
     df = pd.read_sql_query(sql=sqlQuery, con=db_conn)
+    return findEvents(df, dates)
 
+
+def findTopicEvents(topic, dates):
+    df = []
+
+    (db_conn, articlesTable) = db_connect()
+
+    # Tags are ordered by relevance, only select articles where they are first person listed
+    sqlQuery = sa.sql.select([articlesTable]).where(
+        articlesTable.c.subjects.ilike(f"[\'{topic}%"))
+    # NOTE While fairly limiting, we use SQLAlchemy selectables instead of raw queries to prevent SQL injection
+
+    # TODO Make more efficient by doing processing ahead of time to offload date filtering to DB
+    # TODO Make more accurate using Heideltime NLP to temporalize events
+    df = pd.read_sql_query(sql=sqlQuery, con=db_conn)
+    return findEvents(df, dates)
+
+
+def findEvents(df, dates):
     # Cut ISO dates to year-month e.g. 2020-11 for string-based date matching
     df['month_date'] = df['pub_date'].str.slice(0, 7)
     # NOTE efficient but not as accurate
@@ -111,7 +139,23 @@ def personScreentimeRoute(name):
 def personEventsRoute(name):
     df = getPersonScreentime(name)
     df = findPeaks(df)
-    df = findEvents(name, df.index)
+    df = findPersonEvents(name, df.index)
+    return df.to_csv(None)
+
+
+@app.route("/topic/<name>/screentime", methods=["GET"])
+@cross_origin()
+def topicScreentimeRoute(name):
+    df = getTopicScreentime(name)
+    return df.to_csv(None, index_label="date")
+
+
+@app.route("/topic/<name>/events", methods=["GET"])
+@cross_origin()
+def topicEventsRoute(name):
+    df = getTopicScreentime(name)
+    df = findPeaks(df)
+    df = findTopicEvents(name, df.index)
     return df.to_csv(None)
 
 

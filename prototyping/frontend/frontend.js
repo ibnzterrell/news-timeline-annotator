@@ -1,12 +1,27 @@
 
 
 const queryRegex = /(.*?)="(.*?)"/;
-async function getData(queryText) {
-    // TODO: Handle queries other than names
-    const queryType = queryText.match(queryRegex)[1]
+async function getData(query) {
+    const [queryMatch, queryType, queryText] = query.match(queryRegex);
+
     switch (queryType) {
         case "name":
-            return getPersonData(queryText.match(queryRegex)[2]);
+            return getPersonData(queryText);
+        case "text":
+            return getTopicData(queryText);
+        default:
+            return [];
+    }
+}
+
+async function getEvents(query, data) {
+    const [queryMatch, queryType, queryText] = query.match(queryRegex);
+
+    switch (queryType) {
+        case "name":
+            return getPersonEvents(queryText, data);
+        case "text":
+            return getTopicEvents(queryText, data);
         default:
             return [];
     }
@@ -25,8 +40,44 @@ async function getPersonData(name) {
     return data;
 }
 
+
+async function getTopicData(topic) {
+    let data = d3.csv(`https://2qcpuu39v3.execute-api.us-west-2.amazonaws.com/dev/topic/${topic}/screentime`,
+        (d) => {
+            return {
+                date: d3.timeParse("%Y-%m-%d")(d.date),
+                date_ISO: d.date,
+                // Convert seconds to minutes
+                screentime: d.screentime / 60
+            };
+        });
+    return data;
+}
+
+
 async function getPersonEvents(name, timedata) {
     let data = d3.csv(`https://2qcpuu39v3.execute-api.us-west-2.amazonaws.com/dev/person/${name}/events`,
+        (d) => {
+            return {
+                date: d3.timeParse("%Y-%m")(d.month_date),
+                // TODO: Use NLP Event Date instead of publish date
+                pub_date: d.pub_date,
+                screentime: timedata.find(t => t.date_ISO.substring(0, 7) === d.month_date).screentime,
+                headline: d.main_headline,
+                snippet: d.snippet,
+                section: d.section_name,
+                people: d.people,
+                organizations: d.organizations,
+                topics: d.subjects,
+                url: d.web_url,
+                uri: d.uri
+            };
+        });
+    return data;
+}
+
+async function getTopicEvents(topic, timedata) {
+    let data = d3.csv(`https://2qcpuu39v3.execute-api.us-west-2.amazonaws.com/dev/topic/${topic}/events`,
         (d) => {
             return {
                 date: d3.timeParse("%Y-%m")(d.month_date),
@@ -80,9 +131,10 @@ function annotate(url) {
     // Load JSON
     query = JSON.parse(query);
     console.log(query);
+    // Only consider the first query
+    query = query.queries[0].text;
 
-    // Get the data for the first query
-    getData(query.queries[0].text).then((data) => {
+    getData(query).then((data) => {
         console.log(data);
         // Set up scales
         let xScale = d3.scaleTime().domain(d3.extent(data, d => d.date)).range([0, plotVars.plotWidth]);
@@ -103,7 +155,7 @@ function annotate(url) {
         let lineGenerator = d3.line().x(d => xScale(d.date)).y(d => yScale(d.screentime));
         line.datum(data).attr("d", d => lineGenerator(d)).attr("fill", "none").attr("stroke", "firebrick");
 
-        getPersonEvents(query.queries[0].text.match(queryRegex)[2], data).then(
+        getEvents(query, data).then(
             (events) => {
                 console.log(events);
                 let annotations = events.map((e, i) => {
