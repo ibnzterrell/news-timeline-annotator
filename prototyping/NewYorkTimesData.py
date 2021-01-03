@@ -1,24 +1,32 @@
-import requests
-import json
-import pandas as pd
 import time
+import pandas as pd
+import json
+import requests
 
 # Downloads last decade of NYT Headlines, 2010/1 - 2020/12
 months = range(1, 13)
-years = range(2010, 2021)
+years = range(1851, 2021)
 apiKey = "[API KEY]"
 
-# exec(open("NewYorkTimesData.py").read())
+# python -u .\NewYorkTimesData.py
 
 
 def getMonthDataframe(month, year):
-    print(f"Retrieving {year}/{month}")
+    print(f"Retrieving {year}-{month}")
     rawMonthData = requests.get(
         f"https://api.nytimes.com/svc/archive/v1/{year}/{month}.json?api-key={apiKey}")
     data = json.loads(rawMonthData.content)
-    print("Retrieved. Processing Data.")
-    # Drop Non-Articles
+    print("Retreived. Processing Month.")
+
+    # Convert JSON to Dataframe
     df = pd.json_normalize(data["response"]["docs"])
+
+    # Some months are missing, don't process those
+    if df.empty:
+        print(f"Missing Month: {year}-{month}")
+        return df
+
+    # Drop Non-Articles
     df = df[df["document_type"] == "article"]
 
     # Rename and Grab Columns We Want
@@ -42,19 +50,22 @@ def getMonthDataframe(month, year):
     df = df[["uri", "pub_date", "type_of_material", "main_headline",
              "print_headline", "snippet", "news_desk", "section_name", "web_url", "people", "organizations", "subjects", "locations"]]
 
-    # Drop Unlabled Material
+    # Drop Unlabeled Material
     df = df.dropna(subset=["type_of_material"])
 
     # Drop Non-News Material
-    # NOTE: Maybe include Text
-    df = df[df["type_of_material"].isin(["News", "Brief", "Obituary (Obit)"])]
+    # NOTE: Older material is under Archives
+    df = df[df["type_of_material"].isin(
+        ["Archives", "News", "Brief", "Obituary (Obit)"])]
 
-    # Drop News Desks that aren't about events
+    # Drop News Desks that aren't event headlines
     df = df[~df['news_desk'].isin(["BookReview", "Podcasts", "Upshot"])]
 
-    # Drop Sections that aren't about events or are subjective
+    # Drop Sections that typically aren't about singular events
     df = df[~df["section_name"].isin(["Opinion", "Fashion & Style"])]
 
+    # Visual Sanity Check
+    print(df[["pub_date", "main_headline"]])
     return df
 
 
@@ -62,16 +73,16 @@ dfs = []
 
 for year in years:
     for month in months:
-        # Skip December 2020 for now
-        if (year == 2020 and month == 12):
-            break
         mdf = getMonthDataframe(month, year)
         dfs.append(mdf)
-        print(mdf)
         # NOTE NYT API has a rate limit of 10 requests per minute
         time.sleep(6)
 
+print("Concatenating")
 dfs = pd.concat(dfs)
 # The NYT API tends to return duplicates
+print("Dropping Duplicates")
 dfs = dfs.drop_duplicates(subset=["uri"], keep="first")
+print(dfs)
+print("Writing to CSV")
 dfs.to_csv("NYT_Data.csv", index=False, index_label=False)
